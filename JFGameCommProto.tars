@@ -1,0 +1,156 @@
+module JFGamecomm
+{
+
+///////////////////////////////////////////client-2-server proto begin///////////////////////////////////////////////////////
+
+//用户标识
+struct TUid
+{
+    0 require long     lUid;    //用户id
+    1 optional string  sToken;  //用户token
+};
+
+// 消息类型
+enum MSGTYPE
+{
+    MSGTYPE_REQUEST	  = 0,	//请求消息
+    MSGTYPE_RESPONSE  = 1,	//响应消息
+    MSGTYPE_NOTIFY	  = 2,	//通知消息
+};
+
+// 消息头
+struct TMsgHead
+{
+    0 require short nMsgID;		//消息ID
+    1 require MSGTYPE nMsgType;	//消息类型
+};
+
+// 通讯包头
+struct TPackage
+{
+    0 require 	int 					iVersion;	   //客户端版本
+    1 require 	TUid 					stUid;		   //用户标识
+    2 require	int						iGameID;	   //游戏ID
+    3 require 	string 					sRoomID;	   //RoomID
+    4 require	int 					iRoomServerID; //RoomServerID
+    5 require 	int 					iSequence;	   //序列号
+    6 require 	int 					iFlag;		   //标志位
+    7 require 	vector<TMsgHead> 		vecMsgHead;	   //消息头数据
+    8 require 	vector<vector<byte>> 	vecMsgData;	   //消息体数据
+};
+
+///////////////////////////////////////////client-2-server proto end/////////////////////////////////////////////////////////
+
+///////////////////////////////////////////client-2-server msgid begin///////////////////////////////////////////////////////
+
+enum Eum_Comm_Msgid
+{
+    //游戏消息 client<-->gameSO, msgid(1--10给游戏so使用)
+    E_MSGID_GAME_SO_REQ 		= 1,	//游戏消息请求[C->S]so中实现
+    E_MSGID_GAME_SO_RESP 		= 2,	//游戏消息应答[S->C] 
+    E_MSGID_GAME_SO_NOTIFY	    = 3,	//游戏消息通知[S->C] 
+    E_MSGID_SIZZLER_SO_NOTIFY   = 4,    //时时乐游戏通知消息[S->C]
+
+    //Route使用消息, msgid(11-20给Route使用)
+    E_MSGID_LOGIN_HALL_REQ      = 11,   //登录大厅消息请求[C->S]
+    E_MSGID_LOGIN_HALL_RESP     = 12,   //登录大厅消息响应[S->C]
+    E_MSGID_KEEP_ALIVE_REQ      = 13,   //心跳消息请求
+    E_MSGID_KEEP_ALIVE_RESP     = 14,   //心跳消息响应
+
+    //Room使用消息, msgid(21-100给Room使用)
+    //msgid(21-30给Room单向通知客户端使用)
+    E_MSGID_OFFLINE_NOTIFY      = 21,   //断线消息响应[S->C,Data:]
+    E_MSGID_SERVER_RESET_NOTIFY = 22,   //重启通知
+    E_MSGID_USER_NOT_EXIST_NOTIFY = 23, //用户不存在
+    E_MSGID_ROOMID_NOT_EXIST_NOTIFY = 24, //ROOMID不存在
+    E_MSGID_WEALTH_NOT_ENOUGH_NOTIFY = 25, //财富不够
+    E_MSGID_TABLE_NOT_ENOUGHT_NOTIFY = 26, //桌子不够
+    E_MSGID_WEALTH_OVER_NOTIFY = 27, //财富超过
+
+    //msid(31-100给Room响应客户端请求的公共消息)
+    E_MSGID_CHAT_TE_REQ 		= 31,	//文本与表情聊天请求[C->S,Data:]
+    E_MSGID_CHAT_TE_NOTIFY	    = 32,	//文本与表情聊天通知[S->C,Data:]
+    E_MSGID_CHAT_AUDIO_REQ		= 33,	//语音聊天请求[C->S,Data:]
+    E_MSGID_CHAT_AUDIO_NOTIFY	= 34,	//语音聊天结果[S->C,Data:]
+    E_MSGID_GPS_REQ		        = 35,	//GPS请求[C->S,Data:]
+    E_MSGID_GPS_NOTIFY	        = 36,	//GPS结果[S->C,Data:]
+    E_MSGID_GPS_RE_REQ		    = 37,	//GPS再请求[C->S,Data:]
+
+    //msigid(10000+给红点推送服务使用)
+    E_MSGID_CLUB_ROOM_CONFIG_CHANGE_REQ   = 20000,    //俱乐部玩法变化，body为string类型的configId
+    E_MSGID_CLUB_ROOM_DISMISS_REQ         = 20001,    //俱乐部房间解散，body为string类型的recordId
+    E_MSGID_USER_ACCOUNT_GOLD_CHANGE_REQ  = 20051,    //用户金币更新，body为string类型的gold
+};
+
+///////////////////////////////////////////client-2-server msgid end/////////////////////////////////////////////////////////
+
+///////////////////////////////////////////client-2-server strcut begin//////////////////////////////////////////////////////
+
+//GameSo使用msgid消息结构由GameSo与Client定义，不在此处
+
+//Route使用msgid消息无结构
+//玩家登陆大厅
+struct TMsgRespLoginHall
+{
+    0 require int iResultID;    //返回结果：0.成功，
+};
+
+//Room使用msgid消息结构
+//玩家断线消息响应
+struct TMsgRespOffline
+{
+    0 require long lPlayerID;	//玩家ID
+    1 require int iChairID;		//桌子位置
+};
+
+//文本与表情聊天请求
+struct TMsgReqChat
+{
+    0 require int iChatType;	//聊天类型 1.文本聊天, 2.表情聊天
+    1 require string sChatData;	//聊天数据内容
+};
+
+//文本与表情聊天响应
+struct TMsgRespChat
+{
+    0 require int iResultID;	 //返回结果：0.成功
+    1 require int iChatType;	 //聊天类型 1.文本聊天, 2.表情聊天
+    2 require string sChatData;	 //聊天数据内容
+    3 require int iChairID;		 //玩家所在桌子位置
+};
+
+//语音聊天请求
+struct TMsgReqAudioChat
+{
+    0 require string sChatData;	 //语音聊天内容
+    1 require int duration;		 //语音聊天时长
+};
+
+//语音聊天响应
+struct TMsgRespAudioChat
+{
+    0 require int iResultID;	 // 返回结果：0.成功
+    1 require int iChairID;		 // 玩家所在桌子位置
+    2 require string sChatData;	 // 语音聊天内容
+    3 require int duration;		 // 语音聊天时长
+};	
+
+//GPS请求
+struct TMsgReqGPS
+{
+    0 require int iLongitude; //经度
+    1 require int iLatitude;  //纬度
+};
+
+//GPS响应
+struct TMsgRespGPS
+{
+    0 require int iResultID;  //返回结果：0.成功, -1.其它错误
+    1 require int iChairID;   //椅子ID
+    2 require int iLongitude; //经度
+    3 require int iLatitude;  //纬度
+};
+
+///////////////////////////////////////////client-2-server strcut end////////////////////////////////////////////////////////
+
+};

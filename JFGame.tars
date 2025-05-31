@@ -1,0 +1,29 @@
+//
+//
+// 内部server之间交互协议结构
+//
+//
+
+module JFGame
+{ 
+	// 客户端登录的基本信息
+	struct TClientParam
+	{
+		0 require string        sAddr;
+		1 require short         nPort;
+	};
+	
+	//for compile
+	struct UserBaseInfoExt
+	{
+		0 require int num;
+		1 optional string deviceID;  	//设备唯一码（android: imei, ios: idfa）
+        2 optional string deviceType;  	//机型信息
+        3 optional int platform;  		//平台类型
+		4 optional int channnelID;   	//渠道号
+		5 optional int areaID;   		//区域代码
+		6 optional int isRobot;			//是否机器人，0--正常用户，1--机器人
+	};
+};
+
+

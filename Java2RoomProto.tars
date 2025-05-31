@@ -1,0 +1,64 @@
+module java2room
+{
+	enum Eum_Msgid
+	{
+	    E_MSGID_CLUB_ROOM_CONFIG_CHANGE_NOTIFY	  = 20000,	 //俱乐部玩法变化，relateId为configId
+	    E_MSGID_CLUB_ROOM_DISMISS_NOTIFY  		  = 20001,	 //俱乐部房间解散，relateId为recordId
+		E_MSGID_USER_ACCOUNT_GOLD_CHANGE_NOTIFY   = 20051,   //用户金币更新，body为string类型的gold
+		E_MSGID_JACKPOT_MODIFY_NOTIFY 			  = 20100,   //奖池修改，relateId为field，extraInfo为value
+	};
+
+   	struct NotifyRoomReq
+   	{
+   	    0 require	int 		messageId;            //消息id
+   	    1 require	string 		roomId;               //roomId
+   	    2 require	string 		relateId;             //关联id
+   	    3 require	string 		extraInfo;            //额外信息
+   	};
+
+   	// 批量加入或退出牌局
+   	struct EnterOrExitRoomReq
+   	{
+   		0 require int  			flag;			// 类型 0 加入 2 退出
+   		1 require string 		roomKey;		// 房间ID(退出时不用传)
+   		2 require int           buyCount;		// 买入手数(加入时用)
+   		3 require vector<long> 	uIds; 			// 机器人UID列表
+   	};
+
+   	struct EnterOrExitRoomResp
+   	{
+   		0 require int			resultCode;		// 结果码 0 成功
+   		1 require int			flag;			// 类型 0 加入 2 退出
+   		2 require vector<long> 	uIds;			// 成功的机器人UID列表
+   	};
+
+   	// 俱乐部创建桌子
+   	struct CreateTableReq
+   	{
+   		0 require long uId;			// 会长UID
+   		1 require long clubId;		// 俱乐部ID
+   		2 require long gameType;	// 玩法类型 1 经典 2 AOF 3 短牌
+   		3 require long timeId;		// 房间时间ID
+   		4 require long maxSeat;		// 最大座位数 2-6-9
+   		5 require long speedType;	// 速度类型 1 快速 2 常规
+   		6 require long blindId;		// 肓注ID
+   		7 require long pet;			// 抽水百分比
+   		8 require long insure;		// 是否开启保险 0 否 1 是(必1)
+   		9 require long watch;		// 是否允许非俱乐部成员观点
+   	};
+
+   	struct CreateTableResp
+   	{
+   		0 require int resultCode;	// 结果码 0 成功
+   		1 require string roomKey;	// 房间ID
+   	};
+
+   	// 房间创建人审核申请带入
+   	struct RoomAuditApplyReq
+   	{
+   		0 require string roomKey;   // 房间ID
+   		1 require long uId;         // 申请人ID
+   		2 require bool bAgree;      // 是否同意
+   		3 optional string sRoomID;  // 房间号
+   	};
+};
